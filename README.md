@@ -21,8 +21,11 @@ Change frame rate
 You can set frame rate of the animation by the last parameter of `SpriteSheetAnimationAdapter`'s
 Constructor
 
+            int myFrameRate = 60;
             SpriteSheetAnimationAdapter animAdapter = new SpriteSheetAnimationAdapter(getResources(),
-                                result, fileOpener);
+                                result, fileOpener, myFrameRate);
+
+alternatively, you can call `setFrameRate(myFrameRate)` explicitly before calling `loadAnimation()`
 
 
 FileOpener
