@@ -8,6 +8,7 @@ Usage
 
 See demo subproject, here's a simple snippet:
 
+```java
             SpriteSheet result = p.getResult();
             SpriteSheetAnimationAdapter animAdapter = new SpriteSheetAnimationAdapter(getResources(),
                     result, fileOpener);
@@ -15,15 +16,18 @@ See demo subproject, here's a simple snippet:
             animationDrawable.setOneShot(false);
             iv.setImageDrawable(animationDrawable);
             animationDrawable.start();
+```
 
 Change frame rate
 ----------------
 You can set frame rate of the animation by the last parameter of `SpriteSheetAnimationAdapter`'s
 Constructor
 
+```java
             int myFrameRate = 60;
             SpriteSheetAnimationAdapter animAdapter = new SpriteSheetAnimationAdapter(getResources(),
                                 result, fileOpener, myFrameRate);
+```
 
 alternatively, you can call `setFrameRate(myFrameRate)` explicitly before calling `loadAnimation()`
 
