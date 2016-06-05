@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Cosos2dAnimationCompat.iml" filepath="$PROJECT_DIR$/Cosos2dAnimationCompat.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/app.iml" filepath="$PROJECT_DIR$/demo/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/library/spritesheetanimation.iml" filepath="$PROJECT_DIR$/library/spritesheetanimation.iml" />
+    </modules>
+  </component>
+</project>
