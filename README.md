@@ -16,6 +16,15 @@ See demo subproject, here's a simple snippet:
             iv.setImageDrawable(animationDrawable);
             animationDrawable.start();
 
+Change frame rate
+----------------
+You can set frame rate of the animation by the last parameter of `SpriteSheetAnimationAdapter`'s
+Constructor
+
+            SpriteSheetAnimationAdapter animAdapter = new SpriteSheetAnimationAdapter(getResources(),
+                                result, fileOpener);
+
+
 FileOpener
 ---------
 
