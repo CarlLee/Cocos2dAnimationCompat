@@ -4,12 +4,14 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
-import android.util.Log;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,10 @@ public class SpriteSheetAnimationAdapter {
 
     public void setFrameRate(int frameRate) {
         this.mFrameRate = frameRate;
+    }
+
+    public Collection<Bitmap> getFrames() {
+        return mFrameTextures.values();
     }
 
     public AnimationDrawable loadAnimation() {
@@ -91,16 +97,37 @@ public class SpriteSheetAnimationAdapter {
             Size spriteSize = frame.getSpriteSize();
             Size spriteSourceSize = frame.getSpriteSourceSize();
             Rect textureRect = frame.getTextureRect();
-            Point origin = textureRect.topLeft;
-            Size size = textureRect.size;
+            Point textureOrigin = textureRect.topLeft;
+            Size textureSize = textureRect.size;
+            boolean rotated = frame.isTextureRotated();
+            boolean trimmed = frame.isSpriteTrimmed();
 
             android.graphics.Rect srcRect =
-                    new android.graphics.Rect(origin.x, origin.y, origin.x + size.w, origin.y + size.h);
-            android.graphics.Rect dstRect = new android.graphics.Rect(spriteOffset.x,
-                    spriteOffset.y, spriteOffset.x + spriteSize.w, spriteOffset.y + spriteSize.h);
-            Bitmap frameTexture = Bitmap.createBitmap(spriteSourceSize.w, spriteSourceSize.h,
-                    Bitmap.Config.ARGB_8888);
-            Canvas c = new Canvas(frameTexture);
+                    new android.graphics.Rect(textureOrigin.x, textureOrigin.y,
+                            textureOrigin.x + textureSize.w, textureOrigin.y + textureSize.h);
+            android.graphics.Rect dstRect;
+
+            Bitmap frameTexture;
+            Canvas c;
+            if (trimmed) {
+                frameTexture = Bitmap.createBitmap(spriteSize.w,
+                        spriteSize.h,
+                        Bitmap.Config.ARGB_8888);
+                c = new Canvas(frameTexture);
+                dstRect = new android.graphics.Rect(0, 0, textureSize.w, textureSize.h);
+            } else {
+                frameTexture = Bitmap.createBitmap(spriteSourceSize.w,
+                        spriteSourceSize.h,
+                        Bitmap.Config.ARGB_8888);
+                c = new Canvas(frameTexture);
+                dstRect = new android.graphics.Rect(spriteOffset.x,
+                        spriteOffset.y, spriteOffset.x + spriteSize.w, spriteOffset.y + spriteSize.h);
+            }
+            if (rotated) {
+                dstRect.left = -dstRect.right;
+                dstRect.right = 0;
+                c.rotate(-90F);
+            }
             c.drawBitmap(texture, srcRect, dstRect, paint);
             mFrameTextures.put(name, frameTexture);
         }
@@ -127,8 +154,8 @@ public class SpriteSheetAnimationAdapter {
             @Override
             public int compare(String lhs, String rhs) {
                 // Fixes natural order mistakes where "abc10" is less than "abc2"
-                Log.d(TAG, String.format("lhs %s, rhs %s, lhs.length() - rhs.length(): %d",
-                        lhs, rhs, lhs.length() - rhs.length()));
+//                Log.d(TAG, String.format("lhs %s, rhs %s, lhs.length() - rhs.length(): %d",
+//                        lhs, rhs, lhs.length() - rhs.length()));
                 if (lhs.length() != rhs.length()) {
                     return lhs.length() - rhs.length();
                 } else {

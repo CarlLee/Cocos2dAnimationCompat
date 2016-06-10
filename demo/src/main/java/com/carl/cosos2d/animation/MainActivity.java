@@ -1,34 +1,60 @@
 package com.carl.cosos2d.animation;
 
-import android.graphics.drawable.AnimationDrawable;
+import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.ImageView;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
-import com.carl.cocos2d.animation.AssetsFileOpener;
-import com.carl.cocos2d.animation.SpriteSheet;
-import com.carl.cocos2d.animation.SpriteSheetAnimationAdapter;
-import com.carl.cocos2d.animation.SpriteSheetParser;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+
+    private static final String TAG = "MainActivity";
+    private ArrayAdapter<String> mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ImageView iv = (ImageView) findViewById(R.id.iv);
 
-        AssetsFileOpener fileOpener = new AssetsFileOpener(getApplicationContext());
-        SpriteSheetParser p = new SpriteSheetParser(fileOpener);
-        boolean success = p.parse("plant_1_4_n_2_1_anim.plist");
-        if (success && iv != null) {
-            SpriteSheet result = p.getResult();
-            SpriteSheetAnimationAdapter animAdapter = new SpriteSheetAnimationAdapter(getResources(),
-                    result, fileOpener);
-            AnimationDrawable animationDrawable = animAdapter.loadAnimation();
-            animationDrawable.setOneShot(false);
-            iv.setImageDrawable(animationDrawable);
-            animationDrawable.start();
+        setContentView(R.layout.activity_main);
+        ListView lv = (ListView) findViewById(R.id.lv);
+
+        AssetManager assets = getAssets();
+        try {
+            String[] assetsFiles = assets.list("");
+            List<String> plists = new ArrayList<>();
+            for (String file : assetsFiles) {
+                Log.d(TAG, "file: " + file);
+                if (file.endsWith("plist")) {
+                    plists.add(file);
+                }
+            }
+
+            if (lv != null) {
+                mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
+                        android.R.id.text1, plists);
+                lv.setAdapter(mAdapter);
+                lv.setOnItemClickListener(this);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        String item = mAdapter.getItem(position);
+//        Intent intent = new Intent(this, AnimationFrameActivity.class);
+        Intent intent = new Intent(this, AnimationActivity.class);
+
+        intent.putExtra(AnimationActivity.EXTRAS_ASSETS_FILE_NAME, item);
+        startActivity(intent);
     }
 }
