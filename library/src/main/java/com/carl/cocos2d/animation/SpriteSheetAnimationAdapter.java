@@ -4,8 +4,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
@@ -99,6 +97,10 @@ public class SpriteSheetAnimationAdapter {
             Rect textureRect = frame.getTextureRect();
             Point textureOrigin = textureRect.topLeft;
             Size textureSize = textureRect.size;
+            Rect colorRect = frame.getSpriteColorRect();
+            Point colorOrigin = colorRect.topLeft;
+            Size colorSize = colorRect.size;
+
             boolean rotated = frame.isTextureRotated();
             boolean trimmed = frame.isSpriteTrimmed();
 
@@ -107,28 +109,33 @@ public class SpriteSheetAnimationAdapter {
                             textureOrigin.x + textureSize.w, textureOrigin.y + textureSize.h);
             android.graphics.Rect dstRect;
 
-            Bitmap frameTexture;
-            Canvas c;
-            if (trimmed) {
-                frameTexture = Bitmap.createBitmap(spriteSize.w,
-                        spriteSize.h,
-                        Bitmap.Config.ARGB_8888);
-                c = new Canvas(frameTexture);
-                dstRect = new android.graphics.Rect(0, 0, textureSize.w, textureSize.h);
-            } else {
-                frameTexture = Bitmap.createBitmap(spriteSourceSize.w,
-                        spriteSourceSize.h,
-                        Bitmap.Config.ARGB_8888);
-                c = new Canvas(frameTexture);
-                dstRect = new android.graphics.Rect(spriteOffset.x,
-                        spriteOffset.y, spriteOffset.x + spriteSize.w, spriteOffset.y + spriteSize.h);
-            }
+            Bitmap frameTexture = Bitmap.createBitmap(spriteSourceSize.w,
+                        spriteSourceSize.h,Bitmap.Config.ARGB_8888);
+            Canvas c = new Canvas(frameTexture);
+            dstRect = new android.graphics.Rect(colorOrigin.x,
+                    colorOrigin.y, colorOrigin.x + colorSize.w, colorOrigin.y + colorSize.h);
+            c.save();
             if (rotated) {
-                dstRect.left = -dstRect.right;
-                dstRect.right = 0;
+                int originLeft = dstRect.left;
+                int originTop = dstRect.top;
+                int originRight = dstRect.right;
+                int originBottom = dstRect.bottom;
+                dstRect.left = -originBottom;
+                dstRect.top = originLeft;
+                dstRect.right = -originTop;
+                dstRect.bottom = originRight;
                 c.rotate(-90F);
             }
             c.drawBitmap(texture, srcRect, dstRect, paint);
+            c.restore();
+            //for debug
+//            Paint p = new Paint();
+//            p.setColor(Color.RED);
+//            p.setStrokeWidth(1.0f);
+//            p.setStyle(Paint.Style.STROKE);
+//            c.drawRect(0, 0, spriteOffset.x, spriteOffset.y, p);
+//            c.drawRect(0, 0, colorOrigin.x, colorOrigin.y, p);
+//            c.drawRect(0, 0, frameTexture.getWidth() -1, frameTexture.getHeight()-1, p);
             mFrameTextures.put(name, frameTexture);
         }
 
