@@ -27,6 +27,7 @@ public class SpriteSheetAnimationAdapter {
     private TreeMap<String, Drawable> mFrameDrawables;
     private AnimationDrawable mAnimationDrawable;
     private Bitmap mTexture;
+    private int mBitmapDensity = SpriteDrawable.DENSITY_UNKNOWN;
 
     public SpriteSheetAnimationAdapter(FileOpener fileOpener) {
         this(fileOpener, DEFAULT_FRAME_RATE);
@@ -35,6 +36,14 @@ public class SpriteSheetAnimationAdapter {
     public SpriteSheetAnimationAdapter(FileOpener fileOpener, int frameRate) {
         this.mFileOpener = fileOpener;
         this.mFrameRate = frameRate;
+    }
+
+    public int getBitmapDensity() {
+        return mBitmapDensity;
+    }
+
+    public void setBitmapDensity(int bitmapDensity) {
+        mBitmapDensity = bitmapDensity;
     }
 
     public int getFrameRate() {
@@ -131,7 +140,7 @@ public class SpriteSheetAnimationAdapter {
 
             SpriteDrawable drawable = new SpriteDrawable(mTexture, srcRect, dstRect,
                     spriteSourceSize.h, spriteSourceSize.w, rotated,
-                    resources.getDisplayMetrics());
+                    resources.getDisplayMetrics(), mBitmapDensity);
             mFrameDrawables.put(name, drawable);
         }
 
