@@ -9,10 +9,12 @@ Usage
 See demo subproject, here's a simple snippet:
 
 ```java
+            AssetsFileOpener fileOpener = new AssetsFileOpener(getApplicationContext());
+            SpriteSheetParser p = new SpriteSheetParser(fileOpener);
+            p.parse("my_sprite_sheet.plist");
             SpriteSheet result = p.getResult();
-            SpriteSheetAnimationAdapter animAdapter = new SpriteSheetAnimationAdapter(getResources(),
-                    result, fileOpener);
-            AnimationDrawable animationDrawable = animAdapter.loadAnimation();
+            SpriteSheetAnimationAdapter animAdapter = new SpriteSheetAnimationAdapter(fileOpener);
+            AnimationDrawable animationDrawable = animAdapter.loadAnimation(result, getResources());
             animationDrawable.setOneShot(false);
             iv.setImageDrawable(animationDrawable);
             animationDrawable.start();
@@ -25,8 +27,8 @@ Constructor
 
 ```java
             int myFrameRate = 60;
-            SpriteSheetAnimationAdapter animAdapter = new SpriteSheetAnimationAdapter(getResources(),
-                                result, fileOpener, myFrameRate);
+            SpriteSheetAnimationAdapter animAdapter = new SpriteSheetAnimationAdapter(fileOpener,
+                myFrameRate);
 ```
 
 alternatively, you can call `setFrameRate(myFrameRate)` explicitly before calling `loadAnimation()`

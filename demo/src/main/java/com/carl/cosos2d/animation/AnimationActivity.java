@@ -12,6 +12,9 @@ import com.carl.cocos2d.animation.SpriteSheet;
 import com.carl.cocos2d.animation.SpriteSheetAnimationAdapter;
 import com.carl.cocos2d.animation.SpriteSheetParser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * An activity to display animation
  * Created by Carl on 2016/6/7.
@@ -34,22 +37,25 @@ public class AnimationActivity extends Activity {
         ImageView iv = (ImageView) findViewById(R.id.iv);
         AssetsFileOpener fileOpener = new AssetsFileOpener(getApplicationContext());
         SpriteSheetParser p = new SpriteSheetParser(fileOpener);
-        boolean success = p.parse(filename);
-        if (success && iv != null) {
-            SpriteSheet result = p.getResult();
-            SpriteSheetAnimationAdapter animAdapter = new SpriteSheetAnimationAdapter(getResources(),
-                    result, fileOpener);
-            AnimationDrawable animationDrawable = animAdapter.loadAnimation();
-            if(animationDrawable == null){
-                finish();
-                Toast.makeText(this, "Unable to create animation", Toast.LENGTH_SHORT).show();
-                return;
+        List<SpriteSheet> spriteSheets = new ArrayList<>();
+        String[] names = {"plant_1_2_n_1_anim.plist", "plant_1_2_n_2_anim.plist"};
+        for (String name : names) {
+            boolean suc = p.parse(name);
+            if (suc) {
+                spriteSheets.add(p.getResult());
             }
-            animationDrawable.setOneShot(false);
-            iv.setImageDrawable(animationDrawable);
-            animationDrawable.start();
-        } else {
-            finish();
         }
+
+        SpriteSheetAnimationAdapter animAdapter = new SpriteSheetAnimationAdapter(fileOpener);
+        AnimationDrawable animationDrawable = animAdapter.loadAnimation(spriteSheets,
+                getResources());
+        if (animationDrawable == null) {
+            finish();
+            Toast.makeText(this, "Unable to create animation", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        animationDrawable.setOneShot(false);
+        iv.setImageDrawable(animationDrawable);
+        animationDrawable.start();
     }
 }
