@@ -37,8 +37,8 @@ public class SpriteDrawable extends Drawable {
         this.mPaint = new Paint();
         mPaint.setAntiAlias(true);
 
-        this.mWidth = scaleFromDensity(height, textureDensity, displayMetrics.densityDpi);
-        this.mHeight = scaleFromDensity(width, textureDensity, displayMetrics.densityDpi);
+        this.mWidth = scaleFromDensity(width, textureDensity, displayMetrics.densityDpi);
+        this.mHeight = scaleFromDensity(height, textureDensity, displayMetrics.densityDpi);
         scaleRect(mSrcRect, textureDensity, displayMetrics.densityDpi);
         scaleRect(mDstRect, textureDensity, displayMetrics.densityDpi);
 
