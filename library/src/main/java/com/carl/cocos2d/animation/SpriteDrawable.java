@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.PaintFlagsDrawFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
@@ -36,10 +37,10 @@ public class SpriteDrawable extends Drawable {
         this.mRotate = rotate;
         this.mPaint = new Paint();
         mPaint.setAntiAlias(true);
+        mPaint.setFilterBitmap(true);
 
         this.mWidth = scaleFromDensity(width, textureDensity, displayMetrics.densityDpi);
         this.mHeight = scaleFromDensity(height, textureDensity, displayMetrics.densityDpi);
-        scaleRect(mSrcRect, textureDensity, displayMetrics.densityDpi);
         scaleRect(mDstRect, textureDensity, displayMetrics.densityDpi);
 
         if (rotate) {

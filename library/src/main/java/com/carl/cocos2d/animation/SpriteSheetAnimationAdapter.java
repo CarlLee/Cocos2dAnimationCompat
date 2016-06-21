@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -22,12 +23,16 @@ public class SpriteSheetAnimationAdapter {
 
     private static final String TAG = "SpriteSheetAnimAdapter";
     private static final int DEFAULT_FRAME_RATE = 24;
+    private static final int IN_SAMPLE_SIZE_NONE = -1;
     private final FileOpener mFileOpener;
     private int mFrameRate;
     private TreeMap<String, Drawable> mFrameDrawables;
     private AnimationDrawable mAnimationDrawable;
     private Bitmap mTexture;
     private int mBitmapDensity = SpriteDrawable.DENSITY_UNKNOWN;
+    private int mRequestedWidth = -1;
+    private int mRequestedHeight = -1;
+    private int mInSampleSize = IN_SAMPLE_SIZE_NONE;
 
     public SpriteSheetAnimationAdapter(FileOpener fileOpener) {
         this(fileOpener, DEFAULT_FRAME_RATE);
@@ -54,6 +59,11 @@ public class SpriteSheetAnimationAdapter {
         this.mFrameRate = frameRate;
     }
 
+    public void setRequestedSize(int width, int height) {
+        this.mRequestedWidth = width;
+        this.mRequestedHeight = height;
+    }
+
     public Collection<Drawable> getFrames() {
         return mFrameDrawables.values();
     }
@@ -71,14 +81,34 @@ public class SpriteSheetAnimationAdapter {
 
     /**
      * Load a series of {@link SpriteSheet}s into one single AnimationDrawable
+     *
      * @param spriteSheets sprite sheets that make up the animation
-     * @param resources resources of the context, used to retrieve screen density
+     * @param resources    resources of the context, used to retrieve screen density
      * @return the {@link AnimationDrawable}
      */
     public AnimationDrawable loadAnimation(Collection<SpriteSheet> spriteSheets,
                                            Resources resources) {
+        if (mRequestedHeight > 0 && mRequestedWidth > 0) {
+            FileOpener fileOpener = mFileOpener;
+            if (fileOpener == null) {
+                return null;
+            }
+            int lowestInSampleSize = IN_SAMPLE_SIZE_NONE;
+            for (SpriteSheet spriteSheet : spriteSheets) {
+                int inSampleSize = determineInSampleSize(spriteSheet, fileOpener);
+                if (lowestInSampleSize > 0) {
+                    if (inSampleSize < lowestInSampleSize) {
+                        lowestInSampleSize = inSampleSize;
+                    }
+                } else {
+                    lowestInSampleSize = inSampleSize;
+                }
+            }
+
+            mInSampleSize = lowestInSampleSize;
+        }
         for (SpriteSheet spriteSheet : spriteSheets) {
-            loadAnimation(spriteSheet, resources);
+            doLoadAnimation(spriteSheet, resources);
         }
         return mAnimationDrawable;
     }
@@ -86,14 +116,26 @@ public class SpriteSheetAnimationAdapter {
     /**
      * Load one {@link SpriteSheet} into one single AnimationDrawable,
      * multiple calls to this
+     *
      * @param spriteSheet sprite sheet that makes up the animation
-     * @param resources resources of the context, used to retrieve screen density
+     * @param resources   resources of the context, used to retrieve screen density
      * @return the {@link AnimationDrawable}
      */
     public AnimationDrawable loadAnimation(SpriteSheet spriteSheet, Resources resources) {
+        if (mFileOpener == null) {
+            return null;
+        }
+        if (mRequestedHeight > 0 && mRequestedWidth > 0) {
+            mInSampleSize = determineInSampleSize(spriteSheet, mFileOpener);
+        }
+        return doLoadAnimation(spriteSheet, resources);
+    }
+
+    private AnimationDrawable doLoadAnimation(SpriteSheet spriteSheet, Resources resources) {
         MetaData metaData = spriteSheet.getMetaData();
         List<Sprite> frames = spriteSheet.getFrames();
         FileOpener fileOpener = mFileOpener;
+        float srcRectScaleFactor = 1.0f;
 
         if (metaData == null || fileOpener == null) {
             return null;
@@ -108,7 +150,15 @@ public class SpriteSheetAnimationAdapter {
         Paint paint = new Paint();
         paint.setAntiAlias(true);
         try {
-            mTexture = BitmapFactory.decodeStream(fileOpener.open(textureFileName));
+            BitmapFactory.Options options = null;
+            if (mInSampleSize != IN_SAMPLE_SIZE_NONE) {
+                options = new BitmapFactory.Options();
+                options.inSampleSize = mInSampleSize;
+                srcRectScaleFactor = mInSampleSize;
+                Log.d(TAG, "inSampleSize: " + srcRectScaleFactor);
+            }
+            mTexture = BitmapFactory.decodeStream(fileOpener.open(textureFileName),
+                    null, options);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -138,6 +188,11 @@ public class SpriteSheetAnimationAdapter {
             android.graphics.Rect dstRect = new android.graphics.Rect(colorOrigin.x,
                     colorOrigin.y, colorOrigin.x + colorSize.w, colorOrigin.y + colorSize.h);
 
+            srcRect.left = (int) (srcRect.left / srcRectScaleFactor + 0.5F);
+            srcRect.right = (int) (srcRect.right / srcRectScaleFactor + 0.5F);
+            srcRect.top = (int) (srcRect.top / srcRectScaleFactor + 0.5F);
+            srcRect.bottom = (int) (srcRect.bottom / srcRectScaleFactor + 0.5F);
+
             SpriteDrawable drawable = new SpriteDrawable(mTexture, srcRect, dstRect,
                     spriteSourceSize.h, spriteSourceSize.w, rotated,
                     resources.getDisplayMetrics(), mBitmapDensity);
@@ -150,6 +205,25 @@ public class SpriteSheetAnimationAdapter {
         }
 
         return mAnimationDrawable;
+    }
+
+    private int determineInSampleSize(SpriteSheet spriteSheet, FileOpener fileOpener) {
+
+        MetaData metaData = spriteSheet.getMetaData();
+
+        if (metaData == null) {
+            return IN_SAMPLE_SIZE_NONE;
+        }
+        Target target = metaData.getTarget();
+        String textureFileName = target.getTextureFileName() + target.getTextureFileExtension();
+        try {
+            BitmapFactory.Options options = BitmapUtils.buildBitmapFactoryOptions(fileOpener.open(textureFileName),
+                    mRequestedWidth, mRequestedHeight);
+            return options.inSampleSize;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return IN_SAMPLE_SIZE_NONE;
     }
 
     private TreeMap<String, Drawable> makeTreeMap() {

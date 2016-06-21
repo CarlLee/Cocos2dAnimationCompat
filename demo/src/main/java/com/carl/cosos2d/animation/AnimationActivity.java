@@ -35,6 +35,7 @@ public class AnimationActivity extends Activity {
         }
         setContentView(R.layout.activity_animation);
         ImageView iv = (ImageView) findViewById(R.id.iv);
+        iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
         AssetsFileOpener fileOpener = new AssetsFileOpener(getApplicationContext());
         SpriteSheetParser p = new SpriteSheetParser(fileOpener);
         List<SpriteSheet> spriteSheets = new ArrayList<>();
@@ -47,6 +48,7 @@ public class AnimationActivity extends Activity {
         }
 
         SpriteSheetAnimationAdapter animAdapter = new SpriteSheetAnimationAdapter(fileOpener);
+        animAdapter.setRequestedSize(200, 200);
         AnimationDrawable animationDrawable = animAdapter.loadAnimation(spriteSheets,
                 getResources());
         if (animationDrawable == null) {
