@@ -57,39 +57,61 @@ public class SpriteSheetParser {
             NSDictionary frameDict = (NSDictionary) framesDict.get(key);
             Sprite sprite = new Sprite();
             sprite.setName(key);
-            NSObject[] aliasesNsObj = ((NSArray) frameDict.get("aliases")).getArray();
             List<String> aliases = new ArrayList<>();
-            for (NSObject alias : aliasesNsObj) {
-                String aliasStr = ((NSString) alias).getContent();
-                aliases.add(aliasStr);
+            NSArray aliasNsArray = (NSArray) frameDict.get("aliases");
+            if (aliasNsArray != null) {
+                NSObject[] aliasesNsObj = aliasNsArray.getArray();
+                for (NSObject alias : aliasesNsObj) {
+                    String aliasStr = ((NSString) alias).getContent();
+                    aliases.add(aliasStr);
+                }
             }
 
-            String spriteColorRectStr = ((NSString)frameDict.get("spriteColorRect")).getContent();
-            Rect spriteColorRect = Rect.fromString(spriteColorRectStr);
-            sprite.setSpriteColorRect(spriteColorRect);
+            NSString spriteColorRectNSString = (NSString) frameDict.get("spriteColorRect");
+            if (spriteColorRectNSString != null) {
+                String spriteColorRectStr = spriteColorRectNSString.getContent();
+                Rect spriteColorRect = Rect.fromString(spriteColorRectStr);
+                sprite.setSpriteColorRect(spriteColorRect);
+            }
+            NSString spriteOffsetNSString = (NSString) frameDict.get("spriteOffset");
+            if (spriteOffsetNSString != null) {
+                String spriteOffSetStr = spriteOffsetNSString.getContent();
+                Point spriteOffset = Point.fromString(spriteOffSetStr);
+                sprite.setSpriteOffset(spriteOffset);
+            }
 
-            String spriteOffSetStr = ((NSString)frameDict.get("spriteOffset")).getContent();
-            Point spriteOffset = Point.fromString(spriteOffSetStr);
-            sprite.setSpriteOffset(spriteOffset);
+            NSString spriteSizeNSString = (NSString) frameDict.get("spriteSize");
+            if (spriteSizeNSString != null) {
+                String spriteSizeStr = spriteSizeNSString.getContent();
+                Size spriteSize = Size.fromString(spriteSizeStr);
+                sprite.setSpriteSize(spriteSize);
+            }
 
-            String spriteSizeStr = ((NSString)frameDict.get("spriteSize")).getContent();
-            Size spriteSize = Size.fromString(spriteSizeStr);
-            sprite.setSpriteSize(spriteSize);
+            NSString spriteSourceSizeNSString = (NSString) frameDict.get("spriteSourceSize");
+            if (spriteSourceSizeNSString != null) {
+                String spriteSourceSizeStr = spriteSourceSizeNSString.getContent();
+                Size spriteSourceSize = Size.fromString(spriteSourceSizeStr);
+                sprite.setSpriteSourceSize(spriteSourceSize);
+            }
 
-            String spriteSourceSizeStr = ((NSString)frameDict.get("spriteSourceSize")).getContent();
-            Size spriteSourceSize = Size.fromString(spriteSourceSizeStr);
-            sprite.setSpriteSourceSize(spriteSourceSize);
+            NSNumber spriteTrimmedNSNumber = (NSNumber) frameDict.get("spriteTrimmed");
+            if (spriteTrimmedNSNumber != null) {
+                boolean spriteTrimmed = spriteTrimmedNSNumber.boolValue();
+                sprite.setSpriteTrimmed(spriteTrimmed);
+            }
 
-            boolean spriteTrimmed = ((NSNumber)frameDict.get("spriteTrimmed")).boolValue();
-            sprite.setSpriteTrimmed(spriteTrimmed);
+            NSString textureRectNSString = (NSString) frameDict.get("textureRect");
+            if (textureRectNSString != null) {
+                String textureRectStr = textureRectNSString.getContent();
+                Rect textureRect = Rect.fromString(textureRectStr);
+                sprite.setTextureRect(textureRect);
+            }
 
-            String textureRectStr = ((NSString)frameDict.get("textureRect")).getContent();
-            Rect textureRect = Rect.fromString(textureRectStr);
-            sprite.setTextureRect(textureRect);
-
-            boolean textureRotated = ((NSNumber)frameDict.get("textureRotated")).boolValue();
-            sprite.setTextureRotated(textureRotated);
-
+            NSNumber textureRotatedNSNumber = (NSNumber) frameDict.get("textureRotated");
+            if (textureRotatedNSNumber != null) {
+                boolean textureRotated = textureRotatedNSNumber.boolValue();
+                sprite.setTextureRotated(textureRotated);
+            }
             frames.add(sprite);
 
             for (String alias : aliases) {
@@ -103,46 +125,81 @@ public class SpriteSheetParser {
 
         NSDictionary metadataDict = (NSDictionary) root.get("metadata");
         MetaData metaData = new MetaData();
-        String version = ((NSString) metadataDict.get("version")).getContent();
-        metaData.setVersion(version);
+        if (metadataDict != null) {
+            NSString versionNSString = (NSString) metadataDict.get("version");
+            if (versionNSString != null) {
+                String version = versionNSString.getContent();
+                metaData.setVersion(version);
+            }
 
-        int format = ((NSNumber) metadataDict.get("format")).intValue();
-        metaData.setFormat(format);
+            NSNumber formatNSNumber = (NSNumber) metadataDict.get("format");
+            if (formatNSNumber != null) {
+                int format = formatNSNumber.intValue();
+                metaData.setFormat(format);
+            }
 
-        String sizeStr = ((NSString) metadataDict.get("size")).getContent();
-        Size size = Size.fromString(sizeStr);
-        metaData.setSize(size);
+            NSString sizeNSString = (NSString) metadataDict.get("size");
+            if (sizeNSString != null) {
+                String sizeStr = sizeNSString.getContent();
+                Size size = Size.fromString(sizeStr);
+                metaData.setSize(size);
+            }
 
-        String name = ((NSString)metadataDict.get("name")).getContent();
-        metaData.setName(name);
+            NSString nameNSString = (NSString) metadataDict.get("name");
+            if (nameNSString != null) {
+                String name = nameNSString.getContent();
+                metaData.setName(name);
+            }
 
-        boolean premultipliedAlpha = ((NSNumber) metadataDict.get("premultipliedAlpha")).boolValue();
-        metaData.setPremultipliedAlpha(premultipliedAlpha);
+            NSNumber premultipliedAlphaNSNumber = (NSNumber) metadataDict.get("premultipliedAlpha");
+            if (premultipliedAlphaNSNumber != null) {
+                boolean premultipliedAlpha = premultipliedAlphaNSNumber.boolValue();
+                metaData.setPremultipliedAlpha(premultipliedAlpha);
+            }
 
-        NSDictionary targetDict = ((NSDictionary) metadataDict.get("target"));
-        Target target = new Target();
+            NSDictionary targetDict = ((NSDictionary) metadataDict.get("target"));
+            Target target = new Target();
 
-        name = ((NSString)targetDict.get("name")).getContent();
-        target.setName(name);
+            if (targetDict != null) {
+                nameNSString = (NSString) targetDict.get("name");
+                String name = nameNSString.getContent();
+                target.setName(name);
 
-        String textureFileName = ((NSString)targetDict.get("textureFileName")).getContent();
-        target.setTextureFileName(textureFileName);
+                NSString textureFileNameNSString = (NSString) targetDict.get("textureFileName");
+                if (textureFileNameNSString != null) {
+                    String textureFileName = textureFileNameNSString.getContent();
+                    target.setTextureFileName(textureFileName);
+                }
 
-        String textureFileExtension = ((NSString)targetDict.get("textureFileExtension")).getContent();
-        target.setTextureFileExtension(textureFileExtension);
+                NSString textureFileExtensionNSString = (NSString) targetDict.get("textureFileExtension");
+                if (textureFileExtensionNSString != null) {
+                    String textureFileExtension = textureFileExtensionNSString.getContent();
+                    target.setTextureFileExtension(textureFileExtension);
+                }
 
-        String coordinatesFileName = ((NSString)targetDict.get("coordinatesFileName")).getContent();
-        target.setCoordinatesFileName(coordinatesFileName);
+                NSString coordinatesFileNameNSString = (NSString) targetDict.get("coordinatesFileName");
+                if (coordinatesFileNameNSString != null) {
+                    String coordinatesFileName = coordinatesFileNameNSString.getContent();
+                    target.setCoordinatesFileName(coordinatesFileName);
+                }
 
-        String coordinatesFileExtension = ((NSString)targetDict.get("coordinatesFileExtension")).getContent();
-        target.setCoordinatesFileExtension(coordinatesFileExtension);
+                NSString coordinatesFileExtensionNSString = (NSString) targetDict.get("coordinatesFileExtension");
+                if (coordinatesFileExtensionNSString != null) {
+                    String coordinatesFileExtension = coordinatesFileExtensionNSString.getContent();
+                    target.setCoordinatesFileExtension(coordinatesFileExtension);
+                }
 
-        premultipliedAlpha = ((NSNumber) targetDict.get("premultipliedAlpha")).boolValue();
-        target.setPremultipliedAlpha(premultipliedAlpha);
+                premultipliedAlphaNSNumber = (NSNumber) targetDict.get("premultipliedAlpha");
+                if (premultipliedAlphaNSNumber != null) {
+                    boolean premultipliedAlpha = premultipliedAlphaNSNumber.boolValue();
+                    target.setPremultipliedAlpha(premultipliedAlpha);
+                }
 
-        metaData.setTarget(target);
+                metaData.setTarget(target);
+            }
 
-        mResult.setMetaData(metaData);
+            mResult.setMetaData(metaData);
+        }
     }
 
 

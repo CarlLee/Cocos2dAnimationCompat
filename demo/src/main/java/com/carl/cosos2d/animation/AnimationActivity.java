@@ -39,13 +39,15 @@ public class AnimationActivity extends Activity {
         AssetsFileOpener fileOpener = new AssetsFileOpener(getApplicationContext());
         SpriteSheetParser p = new SpriteSheetParser(fileOpener);
         List<SpriteSheet> spriteSheets = new ArrayList<>();
-        String[] names = {"plant_1_2_n_1_anim.plist", "plant_1_2_n_2_anim.plist"};
-        for (String name : names) {
-            boolean suc = p.parse(name);
-            if (suc) {
-                spriteSheets.add(p.getResult());
-            }
-        }
+//        String[] names = {"plant_1_2_n_1_anim.plist", "plant_1_2_n_2_anim.plist"};
+//        for (String name : names) {
+//            boolean suc = p.parse(name);
+//            if (suc) {
+//                spriteSheets.add(p.getResult());
+//            }
+//        }
+        p.parse(filename);
+        spriteSheets.add(p.getResult());
 
         SpriteSheetAnimationAdapter animAdapter = new SpriteSheetAnimationAdapter(fileOpener);
         animAdapter.setRequestedSize(200, 200);
